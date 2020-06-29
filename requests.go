@@ -425,7 +425,6 @@ func (req *Request) PostJson(origurl string, obj interface{}) (resp *Response, e
 			return resp, err
 		} else {
 			raw = string(marshal)
-			fmt.Println(raw)
 		}
 	}
 
