@@ -157,6 +157,29 @@ func TestPost(t *testing.T) {
 	if err == nil {
 		fmt.Println(resp.Text())
 	}
+
+	//example 3 post json
+	println("post json example")
+	req = Requests()
+	req.Debug = 1
+
+	resp, err = req.PostJson("https://www.httpbin.org/post", Datas{"key": "value"})
+	if err == nil {
+		fmt.Println(resp.Text())
+	}
+
+}
+
+func TestDemo(t *testing.T) {
+	//example 3 post json
+	println("post json example")
+	req := Requests()
+	req.Debug = 1
+
+	resp, err := req.PostJson("https://www.httpbin.org/post", Datas{"key": "value"})
+	if err == nil {
+		fmt.Println(resp.Text())
+	}
 }
 
 func TestTimeout(t *testing.T) {

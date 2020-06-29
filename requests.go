@@ -401,7 +401,7 @@ func (req *Request) PostForm(origurl string, args ...interface{}) (resp *Respons
 
 func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Response, err error) {
 	req.httpreq.Method = "POST"
-	req.Header.Add("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/json")
 
 	//set Header
 	raw := "{}"
@@ -415,6 +415,12 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 		case Header:
 			for k, v := range a {
 				req.Header.Set(k, v)
+			}
+		case Datas:
+			if marshal, err := json.Marshal(args); err != nil {
+				return resp, err
+			} else {
+				raw = string(marshal)
 			}
 		case string:
 			raw = arg.(string)

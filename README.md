@@ -8,7 +8,7 @@ Requests is an HTTP library  , it is easy to use. Similar to Python requests.
 # Installation
 
 ```
-go get -u github.com/asmcos/requests
+go get -u github.com/li-keli/requests
 ```
 
 # Start
@@ -16,7 +16,7 @@ go get -u github.com/asmcos/requests
 ``` go
 package main
 
-import "github.com/asmcos/requests"
+import "github.com/li-keli/requests"
 
 func main (){
 
@@ -33,7 +33,7 @@ func main (){
 ``` go
 package main
 
-import "github.com/asmcos/requests"
+import "github.com/li-keli/requests"
 
 
 func main (){
