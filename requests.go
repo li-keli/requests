@@ -421,7 +421,6 @@ func (req *Request) PostJson(origurl string, obj interface{}) (resp *Response, e
 		req.httpreq.SetBasicAuth(a[0], a[1])
 	default:
 		// 默认使用JSON序列化到Body
-		fmt.Printf("%#v", obj)
 		if marshal, err := json.Marshal(obj); err != nil {
 			return resp, err
 		} else {
