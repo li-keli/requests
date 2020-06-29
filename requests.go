@@ -416,17 +416,18 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 			for k, v := range a {
 				req.Header.Set(k, v)
 			}
-		case Datas:
-			if marshal, err := json.Marshal(args); err != nil {
-				return resp, err
-			} else {
-				raw = string(marshal)
-			}
 		case string:
 			raw = arg.(string)
 		case Auth:
 			// a{username,password}
 			req.httpreq.SetBasicAuth(a[0], a[1])
+		default:
+			// 默认使用JSON序列化到Body
+			if marshal, err := json.Marshal(args); err != nil {
+				return resp, err
+			} else {
+				raw = string(marshal)
+			}
 		}
 	}
 
