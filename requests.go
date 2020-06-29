@@ -322,19 +322,17 @@ func (resp *Response) Cookies() (cookies []*http.Cookie) {
 }
 
 /**************post*************************/
-// call req.Post ,only for easy
+// call req.PostForm ,only for easy
 func Post(origurl string, args ...interface{}) (resp *Response, err error) {
 	req := Requests()
 
 	// call request Get
-	resp, err = req.Post(origurl, args...)
+	resp, err = req.PostForm(origurl, args...)
 	return resp, err
 }
 
 // POST requests
-
-func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, err error) {
-
+func (req *Request) PostForm(origurl string, args ...interface{}) (resp *Response, err error) {
 	req.httpreq.Method = "POST"
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
@@ -352,7 +350,6 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 		switch a := arg.(type) {
 		// arg is Header , set to request header
 		case Header:
-
 			for k, v := range a {
 				req.Header.Set(k, v)
 			}
@@ -360,8 +357,7 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 			// ?title=website&id=1860&from=login
 		case Params:
 			params = append(params, a)
-
-		case Datas: //Post form data,packaged in body.
+		case Datas: //PostForm form data,packaged in body.
 			datas = append(datas, a)
 		case Files:
 			files = append(files, a)
@@ -386,9 +382,58 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 		return nil, err
 	}
 	req.httpreq.URL = URL
-
 	req.ClientSetCookies()
+	req.RequestDebug()
 
+	res, err := req.Client.Do(req.httpreq)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	resp = &Response{}
+	resp.R = res
+	resp.req = req
+	resp.ResponseDebug()
+	return resp, nil
+}
+
+func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Response, err error) {
+	req.httpreq.Method = "POST"
+	req.Header.Add("Content-Type", "application/json")
+
+	//set Header
+	raw := "{}"
+	//reset Cookies,
+	//Client.Do can copy cookie from client.Jar to req.Header
+	delete(req.httpreq.Header, "Cookie")
+
+	for _, arg := range args {
+		switch a := arg.(type) {
+		// arg is Header , set to request header
+		case Header:
+			for k, v := range a {
+				req.Header.Set(k, v)
+			}
+		case string:
+			raw = arg.(string)
+		case Auth:
+			// a{username,password}
+			req.httpreq.SetBasicAuth(a[0], a[1])
+		}
+	}
+
+	if len(raw) > 0 {
+		req.setBodyRawBytes(raw) // set raw to body
+	}
+	//prepare to Do
+	URL, err := url.Parse(origurl)
+	if err != nil {
+		return nil, err
+	}
+	req.httpreq.URL = URL
+	req.ClientSetCookies()
 	req.RequestDebug()
 
 	res, err := req.Client.Do(req.httpreq)
@@ -407,11 +452,16 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 
 // only set forms
 func (req *Request) setBodyBytes(Forms url.Values) {
-
 	// maybe
 	data := Forms.Encode()
 	req.httpreq.Body = ioutil.NopCloser(strings.NewReader(data))
 	req.httpreq.ContentLength = int64(len(data))
+}
+
+//
+func (req *Request) setBodyRawBytes(raw string) {
+	req.httpreq.Body = ioutil.NopCloser(strings.NewReader(raw))
+	req.httpreq.ContentLength = int64(len(raw))
 }
 
 // upload file and form

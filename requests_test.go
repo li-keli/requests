@@ -126,7 +126,7 @@ func TestPost(t *testing.T) {
 
 	// example 1
 	// set post formdata
-	println("Post example1")
+	println("PostForm example1")
 	req := Requests()
 	req.Debug = 1
 
@@ -140,20 +140,20 @@ func TestPost(t *testing.T) {
 		"topping":   "bacon",
 	}
 
-	resp, err := req.Post("https://www.httpbin.org/post", data)
+	resp, err := req.PostForm("https://www.httpbin.org/post", data)
 	if err == nil {
 		fmt.Println(resp.Text())
 	}
 
 	//example 2 upload files
-	println("Post example2")
+	println("PostForm example2")
 	req = Requests()
 	req.Debug = 1
 	path, _ := os.Getwd()
 	path1 := path + "/README.md"
 	path2 := path + "/docs/index.md"
 
-	resp, err = req.Post("https://www.httpbin.org/post", data, Files{"a": path1, "b": path2})
+	resp, err = req.PostForm("https://www.httpbin.org/post", data, Files{"a": path1, "b": path2})
 	if err == nil {
 		fmt.Println(resp.Text())
 	}
