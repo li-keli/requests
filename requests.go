@@ -399,7 +399,7 @@ func (req *Request) PostForm(origurl string, args ...interface{}) (resp *Respons
 	return resp, nil
 }
 
-func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Response, err error) {
+func (req *Request) PostJson(origurl string, obj interface{}) (resp *Response, err error) {
 	req.httpreq.Method = "POST"
 	req.Header.Set("Content-Type", "application/json")
 
@@ -409,25 +409,24 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 	//Client.Do can copy cookie from client.Jar to req.Header
 	delete(req.httpreq.Header, "Cookie")
 
-	for _, arg := range args {
-		switch a := arg.(type) {
-		// arg is Header , set to request header
-		case Header:
-			for k, v := range a {
-				req.Header.Set(k, v)
-			}
-		case string:
-			raw = arg.(string)
-		case Auth:
-			// a{username,password}
-			req.httpreq.SetBasicAuth(a[0], a[1])
-		default:
-			// 默认使用JSON序列化到Body
-			if marshal, err := json.Marshal(args); err != nil {
-				return resp, err
-			} else {
-				raw = string(marshal)
-			}
+	switch a := obj.(type) {
+	// arg is Header , set to request header
+	case Header:
+		for k, v := range a {
+			req.Header.Set(k, v)
+		}
+	case string:
+		raw = obj.(string)
+	case Auth:
+		req.httpreq.SetBasicAuth(a[0], a[1])
+	default:
+		// 默认使用JSON序列化到Body
+		fmt.Printf("%#v", obj)
+		if marshal, err := json.Marshal(obj); err != nil {
+			return resp, err
+		} else {
+			raw = string(marshal)
+			fmt.Println(raw)
 		}
 	}
 
